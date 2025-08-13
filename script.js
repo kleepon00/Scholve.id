@@ -24,7 +24,7 @@ document.getElementById('orderForm').addEventListener('submit', function(e) {
     let product = document.getElementById('orderProduct').value;
     let quantity = document.getElementById('orderQuantity').value;
     let type = document.getElementById('orderType').value;
-    let message = `Halo, saya ingin pesan:\nProduk: ${product}\nJumlah: ${quantity}\nTemplate/Desain: ${type}`;
+    let message = `Halo, min saya nama: \nSaya ingin pesan:\nProduk: ${product}\nJumlah: ${quantity}\nDesain: ${type}\nCatatan: `;
     let waURL = "https://wa.me/6283811281941?text=" + encodeURIComponent(message);
     window.open(waURL, "_blank");
     orderModal.hide();
@@ -36,7 +36,7 @@ document.getElementById('orderForm').addEventListener('submit', function(e) {
     let product = document.getElementById('orderProduct').value;
     let quantity = document.getElementById('orderQuantity').value;
     let type = document.getElementById('orderType').value;
-    let message = `Halo, min Nama :\nSaya ingin pesan:\nProduk: ${product}\nJumlah: ${quantity}\nDesain: ${type}`;
+    let message = `Halo, min saya nama: \nSaya ingin pesan:\nProduk: ${product}\nJumlah: ${quantity}\nDesain: ${type}\nCatatan: `;
     let waURL = "https://wa.me/6283811281941?text=" + encodeURIComponent(message);
     window.open(waURL, "_blank");
     orderModal.hide();
