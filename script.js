@@ -74,7 +74,7 @@ document.getElementById('reviewForm').addEventListener('submit', function(e) {
     localStorage.setItem('hasReviewed', 'true');
     loadReviews();
     document.getElementById('reviewForm').reset();
-    alert('Terima kasih atas ulasannya!');
+    alert('Terima kasih atas ulasannya!,Jangan lupa beli lagi yaa!');
 });
 
 loadReviews();
