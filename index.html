@@ -1,106 +1,112 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scholve.id</title>
-    <link rel="icon" type="image/png" href="assets/favicon.png" class="icon">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    
-    <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scholve.id</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" class="icon">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyCtaRVLnoAlS-RvLvsWP3Barz3ojVIOqrY",
-    authDomain: "wearescholve.firebaseapp.com",
-    projectId: "wearescholve",
-    storageBucket: "wearescholve.firebasestorage.app",
-    messagingSenderId: "867015923350",
-    appId: "1:867015923350:web:59edf66a8b32f23d0894b7",
-    measurementId: "G-F7HC14PH5C"
-  };
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query, orderBy } 
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-  /* Fungsi untuk load ulasan dari Firestore */
-  function loadReviews() {
-    db.collection("reviews").orderBy("timestamp", "desc").onSnapshot(snapshot => {
-      let list = document.getElementById('reviewList');
-      list.innerHTML = '';
-      snapshot.forEach(doc => {
-        let r = doc.data();
-        let col = document.createElement('div');
-        col.className = 'col-md-4';
-        col.innerHTML = `
-          <div class="card shadow-sm">
-            <p>"${r.text}"</p>
-            <small class="text-muted">- ${r.name}</small>
-          </div>
-        `;
-        list.appendChild(col);
+    const firebaseConfig = {
+      apiKey: "AIzaSyD7O4gwM041OqJuhMPd4de4qMaWUAIHDtE",
+      authDomain: "wescholve.firebaseapp.com",
+      projectId: "wescholve",
+      storageBucket: "wescholve.firebasestorage.app",
+      messagingSenderId: "628831138873",
+      appId: "1:628831138873:web:0be26c3bad18c8419e89e8",
+      measurementId: "G-EQ7BEVBRQN"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Load review dari Firestore
+    function loadReviews() {
+      const q = query(collection(db, "reviews"), orderBy("timestamp", "desc"));
+      onSnapshot(q, snapshot => {
+        let list = document.getElementById('reviewList');
+        list.innerHTML = '';
+        let reviews = [];
+        snapshot.forEach(doc => {
+          let r = doc.data();
+          reviews.push(r); // simpan ke localStorage juga
+          let col = document.createElement('div');
+          col.className = 'col-md-4';
+          col.innerHTML = `
+            <div class="card shadow-sm">
+              <p>"${r.text}"</p>
+              <small class="text-muted">- ${r.name}</small>
+            </div>
+          `;
+          list.appendChild(col);
+        });
+        localStorage.setItem("reviews", JSON.stringify(reviews));
       });
+    }
+
+    // Simpan review baru ke Firestore
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById('reviewForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        let name = document.getElementById('reviewName').value;
+        let text = document.getElementById('reviewText').value;
+
+        try {
+          await addDoc(collection(db, "reviews"), {
+            name: name,
+            text: text,
+            timestamp: serverTimestamp()
+          });
+          document.getElementById('reviewForm').reset();
+          alert('Terima kasih atas ulasannya! Jangan lupa beli lagi yaa!');
+        } catch (err) {
+          console.error("Gagal menyimpan ulasan:", err);
+          alert("Terjadi error, coba lagi nanti.");
+        }
+      });
+
+      // Panggil saat halaman dibuka
+      loadReviews();
     });
-  }
-
-  /* Form Submit ke Firestore */
-  document.getElementById('reviewForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    let name = document.getElementById('reviewName').value;
-    let text = document.getElementById('reviewText').value;
-
-    db.collection("reviews").add({
-      name: name,
-      text: text,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-      document.getElementById('reviewForm').reset();
-      alert('Terima kasih atas ulasannya!, Jangan lupa beli lagi yaa!');
-    });
-  });
-
-  // Panggil fungsi saat halaman dibuka
-  loadReviews();
-</script>
+  </script>
 </head>
 <body>
-
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-        <img src="assets/favicon.png" alt="Logo" class="navbar-logo">
-        <a class="navbar-brand fw-bold" href="#">SCHOLVE.ID</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="#produk">Produk</a></li>
-                <li class="nav-item"><a class="nav-link" href="#ulasan">Ulasan</a></li>
-                <li class="nav-item"><a class="nav-link" href="#kontak">Kontak</a></li>
-            </ul>
-        </div>
+      <img src="assets/favicon.png" alt="Logo" class="navbar-logo">
+      <a class="navbar-brand fw-bold" href="#">SCHOLVE.ID</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="#produk">Produk</a></li>
+          <li class="nav-item"><a class="nav-link" href="#ulasan">Ulasan</a></li>
+          <li class="nav-item"><a class="nav-link" href="#kontak">Kontak</a></li>
+        </ul>
+      </div>
     </div>
-</nav>
+  </nav>
 
-<!-- Hero Section -->
-<section class="hero text-white text-center p-5">
+  <!-- Hero Section -->
+  <section class="hero text-white text-center p-5">
     <div class="container">
-        <h1 class="fw-bold">Custom Desain Sesuai Keinginanmu❤️</h1>
-        <p>Bikin Keychain, dan Stiker e-Money unik dengan desain kamu sendiri!</p>
+      <h1 class="fw-bold">Custom Desain Sesuai Keinginanmu❤️</h1>
+      <p>Bikin Keychain, dan Stiker e-Money unik dengan desain kamu sendiri!</p>
     </div>
-</section>
+  </section>
 
-<!-- Produk -->
-<section id="produk" class="container my-5">
+  <!-- Produk -->
+   <section id="produk" class="container my-5">
     <h2 class="text-center mb-4">Produk Kami</h2>
     <div class="row g-4">
         <!-- Keychain -->
@@ -139,59 +145,59 @@
     </div>
 </section>
 
-<!-- Modal Pesan -->
-<div class="modal fade" id="orderModal" tabindex="-1">
+  <!-- Modal Pesan -->
+  <div class="modal fade" id="orderModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Pesan Produk</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="orderForm">
-                    <input type="hidden" id="orderProduct">
-                    <div class="mb-3">
-                        <label class="form-label">Jumlah</label>
-                        <input type="number" id="orderQuantity" class="form-control" required min="1">
-                    </div>
-                    <div class="mb-3">
-                        <div class="mb-3">
-                            <label class="form-label">Template/Desain</label>
-                            <select id="orderType" class="form-control" required></select>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Lanjut ke WhatsApp</button>
-                </form>
-            </div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Pesan Produk</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
+        <div class="modal-body">
+          <form id="orderForm">
+            <input type="hidden" id="orderProduct">
+            <div class="mb-3">
+              <label class="form-label">Jumlah</label>
+              <input type="number" id="orderQuantity" class="form-control" required min="1">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Template/Desain</label>
+              <select id="orderType" class="form-control" required></select>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Lanjut ke WhatsApp</button>
+          </form>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
 
-<!-- Ulasan -->
-<section id="ulasan" class="bg-light py-5">
+  <!-- Ulasan -->
+  <section id="ulasan" class="bg-light py-5">
     <div class="container">
-        <h2 class="text-center mb-4">Ulasan Pembeli</h2>
-        <div id="reviewList" class="row g-4 mb-4"></div>
-        <form id="reviewForm">
-            <div class="mb-3">
-                <label class="form-label">Nama</label>
-                <input type="text" id="reviewName" class="form-control" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Ulasan</label>
-                <textarea id="reviewText" class="form-control" rows="3" required></textarea>
-            </div>
-            <button type="submit" class="btn btn-success">Kirim Ulasan</button>
-        </form>
+      <h2 class="text-center mb-4">Ulasan Pembeli</h2>
+      <div id="reviewList" class="row g-4 mb-4"></div>
+      <form id="reviewForm">
+        <div class="mb-3">
+          <label class="form-label">Nama</label>
+          <input type="text" id="reviewName" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Ulasan</label>
+          <textarea id="reviewText" class="form-control" rows="3" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-success">Kirim Ulasan</button>
+      </form>
     </div>
-</section>
+  </section>
 
-<!-- Footer -->
-<footer id="kontak" class="bg-dark text-white text-center p-4">
-    <p>© 2025 SCHOLVE.ID. Hubungi kami di <a href="https://wa.me/6283811281941" class="text-warning" target="_blank">WhatsApp</a></p>
-</footer>
+  <!-- Footer -->
+  <footer id="kontak" class="bg-dark text-white text-center p-4">
+    <p>© 2025 SCHOLVE.ID. Hubungi kami di 
+      <a href="https://wa.me/6283811281941" class="text-warning" target="_blank">WhatsApp</a>
+    </p>
+  </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
